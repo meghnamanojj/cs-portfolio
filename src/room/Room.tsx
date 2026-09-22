@@ -1,3 +1,4 @@
+import { TV, Desk, SewingMachine, DogBed, Shelf } from "./Furniture";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
@@ -47,6 +48,11 @@ export default function Room() {
 
         <Walls />
         <Rug />
+        <TV />
+        <Desk />
+        <SewingMachine />
+        <DogBed />
+        <Shelf />
 
         <OrbitControls
           target={[0, 1.5, 0]}
