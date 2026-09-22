@@ -1,3 +1,5 @@
+import Simba from "./Simba";
+import TVScreen from "./TVScreen";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import { useState, useRef } from "react";
@@ -164,9 +166,11 @@ export default function Room() {
         </mesh>
 
         <TV />
+        <TVScreen />
         <Desk />
         <SewingMachine />
         <DogBed />
+        <Simba />
         <Shelf />
 
         <Hotspot
@@ -192,7 +196,7 @@ export default function Room() {
 
       {!spot && (
         <p className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full border-2 border-plum bg-white px-5 py-2 text-sm font-semibold text-plum">
-          drag to look around · click a glowing dot
+          arrow keys to walk simba · click a glowing dot
         </p>
       )}
     </div>
