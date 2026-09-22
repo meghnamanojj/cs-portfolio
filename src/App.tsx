@@ -1,3 +1,5 @@
+import Contact from "./components/Contact";
+import About from "./components/About";
 import { motion } from "motion/react";
 import Projects from "./components/Projects";
 
@@ -87,6 +89,8 @@ function App() {
       </section>
 
       <Projects />
+      <About />
+      <Contact />
     </main>
   );
 }
