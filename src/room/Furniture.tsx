@@ -12,7 +12,7 @@ export function TV({ position = [0, 0, -4.4] }: Props) {
         <meshStandardMaterial color="#3D3553" />
       </mesh>
       <mesh position={[0, 1.5, 0.19]}>
-        <planeGeometry args={[2.2, 1.2]} />
+        <meshStandardMaterial color="#0d1117" />
         <meshStandardMaterial
           color="#B8F2E6"
           emissive="#B8F2E6"
