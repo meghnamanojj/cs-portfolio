@@ -6,6 +6,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import Projects from "./components/Projects";
 import About from "./components/About";
 import Contact from "./components/Contact";
@@ -102,7 +103,7 @@ function App() {
               things break, then making them less scary to look at.
             </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
               <motion.a
                 href="#projects"
                 className="sticker-sm rounded-full border-4 border-plum bg-lav px-7 py-3 font-semibold"
@@ -120,6 +121,25 @@ function App() {
                 say hi
               </motion.a>
             </div>
+
+            <motion.div
+              className="mt-7"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1 }}
+            >
+              <Link to="/room">
+                <motion.span
+                  className="sticker-sm inline-block rounded-full border-4 border-plum bg-mint px-7 py-3 font-semibold"
+                  whileHover={{ scale: 1.06, rotate: -2 }}
+                  whileTap={{ scale: 0.94, x: 4, y: 4, boxShadow: "0px 0px 0 #3D3553" }}
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  🚪 come into my room
+                </motion.span>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </section>
