@@ -18,12 +18,12 @@ export const projects: Project[] = [
     emoji: "🏠",
   },
   {
-    title: "Password strength visualizer",
-    blurb:
-      "Type a password and watch it get judged. Shows crack time, weak patterns, and whether it has turned up in a known breach.",
-    tech: ["React", "Web Crypto API", "HIBP API"],
+    title: "password strength visualizer",
+    blurb: "type a password and watch what an attacker sees. entropy scoring, pattern detection, and a live breach check that never sends your password anywhere.",
+    tech: ["React", "TypeScript", "Web Crypto API", "HIBP API"],
+    live: "https://password-lab-five.vercel.app/",
+    code: "https://github.com/meghnamanojj/password-lab",
     emoji: "🔐",
-    status: "building",
   },
   {
     title: "Phishing email trainer",
