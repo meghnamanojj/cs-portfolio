@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 const links = [
   {
     label: "Email me",
-    href: "mailto:meghna.manoj005@gmail.com",
+    href: "mailto:meghnamanojjj@gmail.com",
     emoji: "✉️",
     bg: "bg-lav",
   },

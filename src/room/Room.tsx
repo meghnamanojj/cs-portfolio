@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { projects } from "../content/projects";
+import { work, volunteering, type Role } from "../content/experience";
 
 const C = {
   ink: "#3D3553",
@@ -13,8 +14,17 @@ const C = {
 };
 
 const ZOOM = 3.2;
-const FOCUS_X = 820;
+const FOCUS_X = 760;
 const FOCUS_Y = 300;
+
+/* how far each piece of furniture slides sideways — tweak these to respace the room */
+const SHIFT = {
+  board: 0,
+  about: -200,
+  desk: -60,
+  sewing: 0,
+  contact: 150,
+};
 
 const VP_X = 600;
 const VP_Y = 300;
@@ -26,10 +36,12 @@ export default function Room() {
   const [zoomed, setZoomed] = useState(false);
   const [idx, setIdx] = useState(0);
 
-  const grow = (id: string) => ({
+  /* things on the floor grow upward from where they rest;
+     things pinned to the wall grow downward from their pin */
+  const grow = (id: string, origin = "center bottom"): React.CSSProperties => ({
     transform: hover === id ? "scale(1.05)" : "scale(1)",
-    transformBox: "fill-box" as const,
-    transformOrigin: "center" as const,
+    transformBox: "fill-box",
+    transformOrigin: origin,
     transition: "transform 180ms ease",
     cursor: "pointer",
   });
@@ -134,16 +146,6 @@ export default function Room() {
               <stop offset="0%" stopColor="#4A4160" />
               <stop offset="100%" stopColor="#221D30" />
             </radialGradient>
-
-            <filter id="stickerEdge" x="-25%" y="-25%" width="150%" height="150%">
-              <feMorphology in="SourceAlpha" operator="dilate" radius="7" result="fat" />
-              <feFlood floodColor="#FFFFFF" result="white" />
-              <feComposite in="white" in2="fat" operator="in" result="edge" />
-              <feMerge>
-                <feMergeNode in="edge" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
           </defs>
 
           <g style={{ transform: camera, transformOrigin: "0 0",
@@ -191,6 +193,82 @@ export default function Room() {
               );
             })}
 
+            {/* ── corkboard: work + volunteering ── */}
+            <g transform={`translate(${SHIFT.board}, 0)`}>
+
+              {/* board — scenery, stays still */}
+              <rect x="60" y="140" width="290" height="252" rx="10"
+                    fill="url(#deskTop)" stroke={C.ink} strokeWidth="5" />
+              <rect x="74" y="154" width="262" height="224" rx="4"
+                    fill="#E6BE93" stroke={C.ink} strokeWidth="4" />
+              {[[102, 186], [286, 178], [138, 356], [246, 362], [318, 250],
+                [92, 300], [200, 168], [170, 364]].map(([x, y], i) => (
+                <ellipse key={i} cx={x} cy={y} rx="7" ry="4"
+                         fill="#C99A6B" opacity="0.45" />
+              ))}
+
+              {/* pushpins */}
+              <circle cx="138" cy="160" r="9" fill={C.mint}
+                      stroke={C.ink} strokeWidth="3" />
+              <circle cx="135" cy="157" r="2.5" fill="#FFFFFF" opacity="0.9" />
+              <circle cx="266" cy="200" r="9" fill={C.bubble}
+                      stroke={C.ink} strokeWidth="3" />
+              <circle cx="263" cy="197" r="2.5" fill="#FFFFFF" opacity="0.9" />
+
+              {/* id badge — work experience */}
+              <g style={grow("work", "center top")}
+                 onMouseEnter={() => !zoomed && setHover("work")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => !zoomed && setOpen("work")}>
+
+                <path d="M130 166 L100 226 L112 232 L144 172 Z" fill={C.lav}
+                      stroke={C.ink} strokeWidth="3.5" strokeLinejoin="round" />
+                <path d="M146 166 L176 226 L164 232 L132 172 Z" fill="#B49CF0"
+                      stroke={C.ink} strokeWidth="3.5" strokeLinejoin="round" />
+                <rect x="129" y="226" width="18" height="14" rx="3" fill="#BFB4D4"
+                      stroke={C.ink} strokeWidth="3" />
+
+                <rect x="98" y="238" width="80" height="104" rx="8" fill="#FFFFFF"
+                      stroke={C.ink} strokeWidth="4" />
+                <rect x="98" y="238" width="80" height="24" rx="8" fill={C.mint}
+                      stroke={C.ink} strokeWidth="4" />
+
+                <rect x="108" y="272" width="30" height="34" rx="4" fill={C.lav}
+                      stroke={C.ink} strokeWidth="3" />
+                <circle cx="123" cy="284" r="6" fill={C.cream} />
+                <path d="M111 304 q12 -14 24 0 Z" fill={C.cream} />
+
+                <rect x="146" y="274" width="24" height="5" rx="2.5" fill="#CBBEDD" />
+                <rect x="146" y="286" width="18" height="5" rx="2.5" fill="#CBBEDD" />
+                <rect x="146" y="298" width="24" height="5" rx="2.5" fill="#CBBEDD" />
+                {[110, 116, 122, 130, 136, 144, 150, 158, 164].map((x, i) => (
+                  <line key={x} x1={x} y1="318" x2={x} y2="332"
+                        stroke={C.ink} strokeWidth={i % 3 === 0 ? 3 : 1.5} />
+                ))}
+              </g>
+
+              {/* flyers — volunteering */}
+              <g style={grow("volunteer", "center top")}
+                 onMouseEnter={() => !zoomed && setHover("volunteer")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => !zoomed && setOpen("volunteer")}>
+
+                <rect x="226" y="206" width="98" height="126" rx="6" fill={C.bubble}
+                      stroke={C.ink} strokeWidth="4" transform="rotate(7 275 269)" />
+
+                <g transform="rotate(-6 262 274)">
+                  <rect x="212" y="210" width="100" height="128" rx="6" fill="#FFF3B0"
+                        stroke={C.ink} strokeWidth="4" />
+                  <path d="M262 264 q-23 -15 -23 -29 q0 -13 12 -13 q8 0 11 8
+                           q3 -8 11 -8 q12 0 12 13 q0 14 -23 29 Z"
+                        fill={C.bubble} stroke={C.ink} strokeWidth="3.5"
+                        strokeLinejoin="round" />
+                  <rect x="232" y="282" width="60" height="6" rx="3" fill="#E0CFA0" />
+                  <rect x="232" y="296" width="44" height="6" rx="3" fill="#E0CFA0" />
+                  <rect x="232" y="310" width="54" height="6" rx="3" fill="#E0CFA0" />
+                </g>
+              </g>
+            </g>
             {/* rug */}
             {Array.from({ length: 34 }).map((_, i) => {
               const a = (i / 34) * Math.PI * 2;
@@ -219,13 +297,10 @@ export default function Room() {
             })}
 
             {/* ── side table + record player: about ── */}
-            <g style={grow("about")}
-               onMouseEnter={() => !zoomed && setHover("about")}
-               onMouseLeave={() => setHover(null)}
-               onClick={() => !zoomed && setOpen("about")}>
+            <g transform={`translate(${SHIFT.about}, 0)`}>
 
+              {/* table — scenery, stays still */}
               <ellipse cx="470" cy="684" rx="110" ry="16" fill={C.ink} opacity="0.13" />
-
               <path d="M400 596 h20 l-5 82 h-12 Z" fill="url(#legG)"
                     stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
               <path d="M528 596 h20 l-5 82 h-12 Z" fill="url(#legG)"
@@ -235,35 +310,7 @@ export default function Room() {
               <path d="M392 576 h164 v20 h-164 Z" fill="url(#deskEdge)"
                     stroke={C.ink} strokeWidth="5" strokeLinejoin="round" />
 
-              <path d="M398 486 h150 v-64 h-150 Z" fill="#E7DCF2"
-                    stroke={C.ink} strokeWidth="4" opacity="0.9" />
-              <path d="M398 422 h150" stroke={C.ink} strokeWidth="4" fill="none" />
-
-              <rect x="392" y="486" width="164" height="72" rx="8"
-                    fill="url(#plinth)" stroke={C.ink} strokeWidth="5" />
-              <rect x="392" y="486" width="164" height="12" rx="6"
-                    fill="#FFFFFF" opacity="0.35" />
-
-              <ellipse cx="452" cy="512" rx="46" ry="16" fill="#9C8FB8"
-                       stroke={C.ink} strokeWidth="4" />
-              <ellipse cx="452" cy="509" rx="42" ry="14" fill="url(#vinyl)" />
-              <ellipse cx="452" cy="509" rx="30" ry="10" fill="none"
-                       stroke="#5A5072" strokeWidth="1.5" />
-              <ellipse cx="452" cy="509" rx="20" ry="6.5" fill="none"
-                       stroke="#5A5072" strokeWidth="1.5" />
-              <ellipse cx="452" cy="509" rx="10" ry="3.5" fill={C.bubble} />
-
-              <circle cx="528" cy="500" r="9" fill="#BFB4D4"
-                      stroke={C.ink} strokeWidth="3.5" />
-              <path d="M528 500 L470 512" stroke={C.ink} strokeWidth="4"
-                    strokeLinecap="round" fill="none" />
-              <rect x="462" y="508" width="12" height="8" rx="2" fill={C.ink} />
-
-              <circle cx="530" cy="540" r="7" fill={C.mint}
-                      stroke={C.ink} strokeWidth="3" />
-              <circle cx="408" cy="540" r="7" fill={C.bubble}
-                      stroke={C.ink} strokeWidth="3" />
-
+              {/* records leaning on the leg — scenery */}
               <ellipse cx="596" cy="640" rx="34" ry="44" fill="url(#vinyl)"
                        stroke={C.ink} strokeWidth="4" />
               <ellipse cx="596" cy="640" rx="11" ry="14" fill={C.lav} />
@@ -271,8 +318,45 @@ export default function Room() {
                        stroke={C.ink} strokeWidth="4" />
               <ellipse cx="620" cy="646" rx="10" ry="13" fill={C.mint} />
 
+              {/* record player — the clickable part */}
+              <g style={grow("about")}
+                 onMouseEnter={() => !zoomed && setHover("about")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => !zoomed && setOpen("about")}>
+
+                <path d="M398 486 h150 v-64 h-150 Z" fill="#E7DCF2"
+                      stroke={C.ink} strokeWidth="4" opacity="0.9" />
+                <path d="M398 422 h150" stroke={C.ink} strokeWidth="4" fill="none" />
+
+                <rect x="392" y="486" width="164" height="72" rx="8"
+                      fill="url(#plinth)" stroke={C.ink} strokeWidth="5" />
+                <rect x="392" y="486" width="164" height="12" rx="6"
+                      fill="#FFFFFF" opacity="0.35" />
+
+                <ellipse cx="452" cy="512" rx="46" ry="16" fill="#9C8FB8"
+                         stroke={C.ink} strokeWidth="4" />
+                <ellipse cx="452" cy="509" rx="42" ry="14" fill="url(#vinyl)" />
+                <ellipse cx="452" cy="509" rx="30" ry="10" fill="none"
+                         stroke="#5A5072" strokeWidth="1.5" />
+                <ellipse cx="452" cy="509" rx="20" ry="6.5" fill="none"
+                         stroke="#5A5072" strokeWidth="1.5" />
+                <ellipse cx="452" cy="509" rx="10" ry="3.5" fill={C.bubble} />
+
+                <circle cx="528" cy="500" r="9" fill="#BFB4D4"
+                        stroke={C.ink} strokeWidth="3.5" />
+                <path d="M528 500 L470 512" stroke={C.ink} strokeWidth="4"
+                      strokeLinecap="round" fill="none" />
+                <rect x="462" y="508" width="12" height="8" rx="2" fill={C.ink} />
+
+                <circle cx="530" cy="540" r="7" fill={C.mint}
+                        stroke={C.ink} strokeWidth="3" />
+                <circle cx="408" cy="540" r="7" fill={C.bubble}
+                        stroke={C.ink} strokeWidth="3" />
+              </g>
+
+              {/* music notes on hover */}
               <g opacity={hover === "about" ? 1 : 0}
-                 style={{ transition: "opacity 250ms ease" }}>
+                 style={{ transition: "opacity 250ms ease" }} pointerEvents="none">
                 <circle cx="590" cy="452" r="7" fill={C.ink} />
                 <path d="M597 452 v-26 l14 5" stroke={C.ink} strokeWidth="3.5"
                       fill="none" strokeLinecap="round" />
@@ -282,14 +366,11 @@ export default function Room() {
               </g>
             </g>
 
-            {/* ── sewing machine: clickable ── */}
-            <g style={grow("sewing")}
-               onMouseEnter={() => !zoomed && setHover("sewing")}
-               onMouseLeave={() => setHover(null)}
-               onClick={() => !zoomed && setOpen("sewing")}>
+            {/* ── sewing machine: crafts ── */}
+            <g transform={`translate(${SHIFT.sewing}, 0)`}>
 
+              {/* small table — scenery, stays still */}
               <ellipse cx="1095" cy="684" rx="100" ry="15" fill={C.ink} opacity="0.13" />
-
               <path d="M1040 596 h18 l-5 82 h-11 Z" fill="url(#legG)"
                     stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
               <path d="M1150 596 h18 l-5 82 h-11 Z" fill="url(#legG)"
@@ -299,50 +380,7 @@ export default function Room() {
               <path d="M1032 576 h136 v20 h-136 Z" fill="url(#deskEdge)"
                     stroke={C.ink} strokeWidth="5" strokeLinejoin="round" />
 
-              <g transform="rotate(-4 1048 514)">
-                <rect x="1008" y="506" width="80" height="17" rx="4" fill={C.bubble}
-                      stroke={C.ink} strokeWidth="3.5" />
-                <line x1="1016" y1="514" x2="1080" y2="514"
-                      stroke="#FFFFFF" strokeWidth="2" strokeDasharray="5 5" />
-              </g>
-
-              <rect x="1026" y="520" width="148" height="34" rx="7" fill="#B9F3E2"
-                    stroke={C.ink} strokeWidth="5" />
-              <rect x="1026" y="520" width="148" height="9" rx="5"
-                    fill="#FFFFFF" opacity="0.5" />
-              <rect x="1130" y="442" width="44" height="84" fill="#A8EBD8"
-                    stroke={C.ink} strokeWidth="5" />
-              <rect x="1030" y="438" width="144" height="38" rx="14" fill="#B9F3E2"
-                    stroke={C.ink} strokeWidth="5" />
-              <rect x="1038" y="443" width="126" height="9" rx="5"
-                    fill="#FFFFFF" opacity="0.55" />
-              <rect x="1022" y="438" width="36" height="62" rx="12" fill="#A8EBD8"
-                    stroke={C.ink} strokeWidth="5" />
-
-              <rect x="1033" y="492" width="16" height="9" rx="3" fill="#BFB4D4"
-                    stroke={C.ink} strokeWidth="3" />
-              <line x1="1041" y1="500" x2="1041" y2="519"
-                    stroke={C.ink} strokeWidth="3.5" strokeLinecap="round" />
-
-              <line x1="1096" y1="438" x2="1096" y2="404"
-                    stroke={C.ink} strokeWidth="3.5" strokeLinecap="round" />
-              <rect x="1084" y="406" width="24" height="32" rx="5" fill={C.lav}
-                    stroke={C.ink} strokeWidth="4" />
-              {[412, 418, 424, 430].map((y) => (
-                <line key={y} x1="1086" y1={y} x2="1106" y2={y}
-                      stroke="#A78BE8" strokeWidth="2" />
-              ))}
-              <path d="M1096 406 q-40 -18 -55 40 v54" fill="none"
-                    stroke={C.lav} strokeWidth="3" strokeLinecap="round" />
-
-              <circle cx="1180" cy="478" r="15" fill="#BFB4D4"
-                      stroke={C.ink} strokeWidth="4" />
-              <circle cx="1180" cy="478" r="5" fill={C.ink} />
-              <circle cx="1148" cy="537" r="7" fill={C.bubble}
-                      stroke={C.ink} strokeWidth="3" />
-              <circle cx="1120" cy="537" r="7" fill="#FFF3B0"
-                      stroke={C.ink} strokeWidth="3" />
-
+              {/* pincushion — scenery */}
               <ellipse cx="1155" cy="566" rx="19" ry="13" fill="#F2A0BC"
                        stroke={C.ink} strokeWidth="4" />
               {[[-10, -6], [4, -9], [12, -2]].map(([dx, dy], i) => (
@@ -351,8 +389,60 @@ export default function Room() {
                       stroke={C.ink} strokeWidth="2.5" strokeLinecap="round" />
               ))}
 
+              {/* the machine — the clickable part */}
+              <g style={grow("sewing")}
+                 onMouseEnter={() => !zoomed && setHover("sewing")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => !zoomed && setOpen("sewing")}>
+
+                <g transform="rotate(-4 1048 514)">
+                  <rect x="1008" y="506" width="80" height="17" rx="4" fill={C.bubble}
+                        stroke={C.ink} strokeWidth="3.5" />
+                  <line x1="1016" y1="514" x2="1080" y2="514"
+                        stroke="#FFFFFF" strokeWidth="2" strokeDasharray="5 5" />
+                </g>
+
+                <rect x="1026" y="520" width="148" height="34" rx="7" fill="#B9F3E2"
+                      stroke={C.ink} strokeWidth="5" />
+                <rect x="1026" y="520" width="148" height="9" rx="5"
+                      fill="#FFFFFF" opacity="0.5" />
+                <rect x="1130" y="442" width="44" height="84" fill="#A8EBD8"
+                      stroke={C.ink} strokeWidth="5" />
+                <rect x="1030" y="438" width="144" height="38" rx="14" fill="#B9F3E2"
+                      stroke={C.ink} strokeWidth="5" />
+                <rect x="1038" y="443" width="126" height="9" rx="5"
+                      fill="#FFFFFF" opacity="0.55" />
+                <rect x="1022" y="438" width="36" height="62" rx="12" fill="#A8EBD8"
+                      stroke={C.ink} strokeWidth="5" />
+
+                <rect x="1033" y="492" width="16" height="9" rx="3" fill="#BFB4D4"
+                      stroke={C.ink} strokeWidth="3" />
+                <line x1="1041" y1="500" x2="1041" y2="519"
+                      stroke={C.ink} strokeWidth="3.5" strokeLinecap="round" />
+
+                <line x1="1096" y1="438" x2="1096" y2="404"
+                      stroke={C.ink} strokeWidth="3.5" strokeLinecap="round" />
+                <rect x="1084" y="406" width="24" height="32" rx="5" fill={C.lav}
+                      stroke={C.ink} strokeWidth="4" />
+                {[412, 418, 424, 430].map((y) => (
+                  <line key={y} x1="1086" y1={y} x2="1106" y2={y}
+                        stroke="#A78BE8" strokeWidth="2" />
+                ))}
+                <path d="M1096 406 q-40 -18 -55 40 v54" fill="none"
+                      stroke={C.lav} strokeWidth="3" strokeLinecap="round" />
+
+                <circle cx="1180" cy="478" r="15" fill="#BFB4D4"
+                        stroke={C.ink} strokeWidth="4" />
+                <circle cx="1180" cy="478" r="5" fill={C.ink} />
+                <circle cx="1148" cy="537" r="7" fill={C.bubble}
+                        stroke={C.ink} strokeWidth="3" />
+                <circle cx="1120" cy="537" r="7" fill="#FFF3B0"
+                        stroke={C.ink} strokeWidth="3" />
+              </g>
+
+              {/* stitches on hover */}
               <g opacity={hover === "sewing" ? 1 : 0}
-                 style={{ transition: "opacity 250ms ease" }}>
+                 style={{ transition: "opacity 250ms ease" }} pointerEvents="none">
                 <path d="M1000 400 q26 -22 52 0 q26 22 52 0" fill="none"
                       stroke={C.bubble} strokeWidth="4" strokeLinecap="round"
                       strokeDasharray="10 8" />
@@ -360,18 +450,14 @@ export default function Room() {
             </g>
 
             {/* ── desk + monitor: projects ── */}
-            <g style={zoomed ? { cursor: "default" } : grow("desk")}
-               onMouseEnter={() => !zoomed && setHover("desk")}
-               onMouseLeave={() => setHover(null)}
-               onClick={() => { if (!zoomed) { setZoomed(true); setHover(null); } }}>
+            <g transform={`translate(${SHIFT.desk}, 0)`}>
 
+              {/* desk — scenery, stays still */}
               <ellipse cx="780" cy="694" rx="250" ry="22" fill={C.ink} opacity="0.13" />
-
               <path d="M572 494 h30 l-6 190 h-20 Z" fill="url(#legG)"
                     stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
               <path d="M962 494 h30 l-6 190 h-20 Z" fill="url(#legG)"
                     stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
-
               <path d="M528 462 h508 l-22 22 h-464 Z" fill="url(#deskTop)"
                     stroke={C.ink} strokeWidth="5" strokeLinejoin="round" />
               <path d="M550 484 h464 v22 h-464 Z" fill="url(#deskEdge)"
@@ -381,31 +467,7 @@ export default function Room() {
                       stroke="#C98F67" strokeWidth="2" opacity="0.5" />
               ))}
 
-              <rect x="640" y="184" width="360" height="242" rx="18"
-                    fill="url(#shell)" stroke={C.ink} strokeWidth="5" />
-              <rect x="652" y="196" width="336" height="218" rx="12"
-                    fill="#1E1A2B" stroke="#6A6088" strokeWidth="2" />
-              <rect x="662" y="206" width="316" height="190" rx="7" fill={C.screen} />
-
-              <g style={{ opacity: zoomed ? 0 : 1, transition: "opacity 300ms ease" }}>
-                <rect x="680" y="224" width="130" height="74" rx="7" fill={C.mint} />
-                <rect x="680" y="224" width="130" height="14" rx="7" fill="#7FD9C4" />
-                <rect x="824" y="224" width="136" height="52" rx="7" fill={C.bubble} />
-                <rect x="824" y="224" width="136" height="14" rx="7" fill="#F2A0BC" />
-                <rect x="824" y="288" width="136" height="88" rx="7" fill={C.lav} />
-                <rect x="824" y="288" width="136" height="14" rx="7" fill="#B49CF0" />
-                <rect x="680" y="312" width="130" height="64" rx="7" fill="#FFF3B0" />
-                <rect x="680" y="312" width="130" height="14" rx="7" fill="#F5E08C" />
-              </g>
-
-              <rect x="662" y="206" width="316" height="190" rx="7" fill="url(#glare)" />
-              <circle cx="820" cy="412" r="4" fill={C.mint} opacity="0.9" />
-
-              <path d="M800 426 h40 l10 34 h-60 Z" fill="url(#standG)"
-                    stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
-              <ellipse cx="820" cy="464" rx="82" ry="12" fill="url(#standG)"
-                       stroke={C.ink} strokeWidth="4" />
-
+              {/* keyboard + mouse — scenery */}
               <path d="M636 466 h232 l14 26 h-260 Z" fill="url(#keyG)"
                     stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
               {[0, 1, 2].map((row) => (
@@ -416,51 +478,86 @@ export default function Room() {
                   ))}
                 </g>
               ))}
-
               <path d="M902 470 q18 0 18 14 t-18 14 t-18 -14 t18 -14Z" fill="url(#keyG)"
                     stroke={C.ink} strokeWidth="4" />
               <line x1="902" y1="472" x2="902" y2="482" stroke="#CBBEDD" strokeWidth="2.5" />
+
+              {/* monitor — the clickable part */}
+              <g style={zoomed ? { cursor: "default" } : grow("desk")}
+                 onMouseEnter={() => !zoomed && setHover("desk")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => { if (!zoomed) { setZoomed(true); setHover(null); } }}>
+
+                <rect x="640" y="184" width="360" height="242" rx="18"
+                      fill="url(#shell)" stroke={C.ink} strokeWidth="5" />
+                <rect x="652" y="196" width="336" height="218" rx="12"
+                      fill="#1E1A2B" stroke="#6A6088" strokeWidth="2" />
+                <rect x="662" y="206" width="316" height="190" rx="7" fill={C.screen} />
+
+                <g style={{ opacity: zoomed ? 0 : 1, transition: "opacity 300ms ease" }}>
+                  <rect x="680" y="224" width="130" height="74" rx="7" fill={C.mint} />
+                  <rect x="680" y="224" width="130" height="14" rx="7" fill="#7FD9C4" />
+                  <rect x="824" y="224" width="136" height="52" rx="7" fill={C.bubble} />
+                  <rect x="824" y="224" width="136" height="14" rx="7" fill="#F2A0BC" />
+                  <rect x="824" y="288" width="136" height="88" rx="7" fill={C.lav} />
+                  <rect x="824" y="288" width="136" height="14" rx="7" fill="#B49CF0" />
+                  <rect x="680" y="312" width="130" height="64" rx="7" fill="#FFF3B0" />
+                  <rect x="680" y="312" width="130" height="14" rx="7" fill="#F5E08C" />
+                </g>
+
+                <rect x="662" y="206" width="316" height="190" rx="7" fill="url(#glare)" />
+                <circle cx="820" cy="412" r="4" fill={C.mint} opacity="0.9" />
+
+                <path d="M800 426 h40 l10 34 h-60 Z" fill="url(#standG)"
+                      stroke={C.ink} strokeWidth="4" strokeLinejoin="round" />
+                <ellipse cx="820" cy="464" rx="82" ry="12" fill="url(#standG)"
+                         stroke={C.ink} strokeWidth="4" />
+              </g>
             </g>
 
             {/* ── game console: contact ── */}
-            <g style={grow("contact")}
-               onMouseEnter={() => !zoomed && setHover("contact")}
-               onMouseLeave={() => setHover(null)}
-               onClick={() => !zoomed && setOpen("contact")}>
+            <g transform={`translate(${SHIFT.contact}, 0)`}>
 
+              {/* cushion + cable — scenery, stays still */}
               <ellipse cx="700" cy="762" rx="100" ry="13" fill={C.ink} opacity="0.12" />
-
               <ellipse cx="700" cy="748" rx="92" ry="26" fill="#FFE7F0"
                        stroke={C.ink} strokeWidth="4" />
-
-              <path d="M648 698 h104 q16 0 18 16 l4 30 q3 18 -14 20 q-16 2 -22 -14
-                       l-6 -16 h-64 l-6 16 q-6 16 -22 14 q-17 -2 -14 -20 l4 -30
-                       q2 -16 18 -16 Z"
-                    fill={C.lav} stroke={C.ink} strokeWidth="5"
-                    strokeLinejoin="round" />
-              <path d="M656 702 h88 q8 0 9 7 h-106 q1 -7 9 -7 Z"
-                    fill="#FFFFFF" opacity="0.4" />
-
-              <rect x="667.5" y="704" width="9" height="24" rx="3" fill={C.ink} />
-              <rect x="660" y="711.5" width="24" height="9" rx="3" fill={C.ink} />
-
-              <circle cx="728" cy="707" r="6.5" fill={C.bubble}
-                      stroke={C.ink} strokeWidth="3" />
-              <circle cx="738" cy="717" r="6.5" fill={C.mint}
-                      stroke={C.ink} strokeWidth="3" />
-              <circle cx="718" cy="717" r="6.5" fill="#FFF3B0"
-                      stroke={C.ink} strokeWidth="3" />
-              <circle cx="728" cy="727" r="6.5" fill="#FFFFFF"
-                      stroke={C.ink} strokeWidth="3" />
-
-              <rect x="690" y="710" width="16" height="5" rx="2.5" fill={C.ink} />
-              <rect x="690" y="720" width="16" height="5" rx="2.5" fill={C.ink} />
-
               <path d="M700 700 q-4 -34 -46 -44 q-40 -10 -54 16" fill="none"
                     stroke={C.ink} strokeWidth="4" strokeLinecap="round" />
 
+              {/* controller — the clickable part */}
+              <g style={grow("contact")}
+                 onMouseEnter={() => !zoomed && setHover("contact")}
+                 onMouseLeave={() => setHover(null)}
+                 onClick={() => !zoomed && setOpen("contact")}>
+
+                <path d="M648 698 h104 q16 0 18 16 l4 30 q3 18 -14 20 q-16 2 -22 -14
+                         l-6 -16 h-64 l-6 16 q-6 16 -22 14 q-17 -2 -14 -20 l4 -30
+                         q2 -16 18 -16 Z"
+                      fill={C.lav} stroke={C.ink} strokeWidth="5"
+                      strokeLinejoin="round" />
+                <path d="M656 702 h88 q8 0 9 7 h-106 q1 -7 9 -7 Z"
+                      fill="#FFFFFF" opacity="0.4" />
+
+                <rect x="667.5" y="704" width="9" height="24" rx="3" fill={C.ink} />
+                <rect x="660" y="711.5" width="24" height="9" rx="3" fill={C.ink} />
+
+                <circle cx="728" cy="707" r="6.5" fill={C.bubble}
+                        stroke={C.ink} strokeWidth="3" />
+                <circle cx="738" cy="717" r="6.5" fill={C.mint}
+                        stroke={C.ink} strokeWidth="3" />
+                <circle cx="718" cy="717" r="6.5" fill="#FFF3B0"
+                        stroke={C.ink} strokeWidth="3" />
+                <circle cx="728" cy="727" r="6.5" fill="#FFFFFF"
+                        stroke={C.ink} strokeWidth="3" />
+
+                <rect x="690" y="710" width="16" height="5" rx="2.5" fill={C.ink} />
+                <rect x="690" y="720" width="16" height="5" rx="2.5" fill={C.ink} />
+              </g>
+
+              {/* hearts on hover */}
               <g opacity={hover === "contact" ? 1 : 0}
-                 style={{ transition: "opacity 250ms ease" }}>
+                 style={{ transition: "opacity 250ms ease" }} pointerEvents="none">
                 <path d="M780 682 q0 -14 14 -14 q8 0 10 8 q2 -8 10 -8 q14 0 14 14
                          q0 16 -24 28 q-24 -12 -24 -28 Z"
                       fill={C.bubble} stroke={C.ink} strokeWidth="3.5"
@@ -470,16 +567,6 @@ export default function Room() {
                       fill={C.mint} stroke={C.ink} strokeWidth="3"
                       strokeLinejoin="round" />
               </g>
-            </g>
-
-            {/* ── Simba ── */}
-            <g style={grow("simba")}
-               onMouseEnter={() => !zoomed && setHover("simba")}
-               onMouseLeave={() => setHover(null)}
-               onClick={() => !zoomed && setOpen("simba")}>
-              <image href="/img/simba.png" x="0" y="460" width="350" height="350"
-                     preserveAspectRatio="xMidYMax meet"
-                     filter="url(#stickerEdge)" />
             </g>
 
             <rect x="0" y="0" width="1200" height="800" fill="url(#roomLight)"
@@ -577,22 +664,23 @@ export default function Room() {
                    color: C.ink, font: "400 18px Fredoka, sans-serif",
                  }}>
 
-              {open === "simba" && (
+              {open === "work" && (
                 <>
-                  <h2 style={{ font: "600 34px Fredoka, sans-serif", marginBottom: 12 }}>
-                    simba 🐶
+                  <h2 style={{ font: "600 34px Fredoka, sans-serif", marginBottom: 14 }}>
+                    where i've worked 💼
                   </h2>
-                  <p style={{ marginBottom: 10 }}>
-                    pomeranian. professional loaf. supervises all of my homework and
-                    contributes nothing.
-                  </p>
-                  <p style={{ marginBottom: 18 }}>
-                    favourite hobbies: sleeping in doorways, eating things he shouldn't,
-                    and being extremely fluffy.
-                  </p>
+                  <RoleList roles={work} />
                 </>
               )}
 
+              {open === "volunteer" && (
+                <>
+                  <h2 style={{ font: "600 34px Fredoka, sans-serif", marginBottom: 14 }}>
+                    where i volunteer 💛
+                  </h2>
+                  <RoleList roles={volunteering} />
+                </>
+              )}
               {open === "sewing" && (
                 <>
                   <h2 style={{ font: "600 34px Fredoka, sans-serif", marginBottom: 12 }}>
@@ -678,6 +766,26 @@ export default function Room() {
       </Link>
 
       <style>{`@keyframes fadeIn { to { opacity: 1 } }`}</style>
+    </div>
+  );
+}
+
+function RoleList({ roles }: { roles: Role[] }) {
+  return (
+    <div style={{ marginBottom: 6 }}>
+      {roles.map((r) => (
+        <div key={r.org + r.title} style={{ marginBottom: 20 }}>
+          <div style={{ font: "600 21px Fredoka, sans-serif" }}>{r.title}</div>
+          <div style={{ fontSize: 16, opacity: 0.65, marginBottom: 6 }}>
+            {r.org}, {r.dates}
+          </div>
+          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 16, lineHeight: 1.45 }}>
+            {r.points.map((pt, i) => (
+              <li key={i} style={{ marginBottom: 4 }}>{pt}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
